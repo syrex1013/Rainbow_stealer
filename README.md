@@ -18,6 +18,7 @@ Rainbow is data stealer coded in C#/Python. The use ranges from stealing browser
 * Created file is crypted. If you want to crypt it you need crypter. PythonCrypter coming soon :D
 * Please do not upload to websitest that distribute files. Example: virustotal.com
 * Want more features? Please write in issue section.
+* UAC Bypass option is for Windows 10. It uses fudhelper.exe exploit.
 ### Disclaimer
 *This project is purely academic, use at your own risk. I do not encourage in any way the use of this software illegally or to attack targets without their previous authorization.*
 
