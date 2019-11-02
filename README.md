@@ -1,4 +1,5 @@
 # Rainbow Stealer
+![alt text](https://github.com/syrex1013/Rainbow_stealer/blob/master/banner.jpg)
 ### Free, Open-Source Stealer for Windows OS.         
 Rainbow is data stealer coded in C#/Python. The use ranges from stealing browser cookies, to exfiltraiting sensitive files,clear-text passwords and more!.        
 ![alt text](https://github.com/syrex1013/Rainbow_stealer/blob/master/features.jpg)
